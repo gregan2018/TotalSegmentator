@@ -1,8 +1,5 @@
-import nibabel as nib
-import os
 from totalsegmentator.python_api import totalsegmentator
 import nibabel as nib
-from uncertainty.aleatoric import test_time_augmentation
 
 if __name__ == '__main__':
 
