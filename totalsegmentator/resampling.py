@@ -34,7 +34,7 @@ def resample_img(img, zoom=0.5, order=0, nr_cpus=-1):
     Works for 2D and 3D and 4D images.
     """
     def _process_gradient(grad_idx):
-        return ndimage.zoom(img[:, :, :, grad_idx], zoom, mode="nearest", order=order)
+        return ndimage.zoom(img[:, :, :, grad_idx], zoom, order=order)
 
     dim = len(img.shape)
 
@@ -76,8 +76,7 @@ def resample_img_cucim(img, zoom=0.5, order=0, nr_cpus=-1):
     return resampled_img
 
 
-def resample_img_nnunet(data, mask=None, original_spacing=1.0, target_spacing=2.0,
-                       order_data=3, order_seg=0):
+def resample_img_nnunet(data, mask=None, original_spacing=1.0, target_spacing=2.0):
     """
     Args:
         data: [x,y,z]
@@ -101,9 +100,8 @@ def resample_img_nnunet(data, mask=None, original_spacing=1.0, target_spacing=2.
         target_spacing = [target_spacing,] * 3
     target_spacing = np.array(target_spacing)
 
-    if data is not None:
-        data = data.transpose((2, 0, 1))  # z is in front for nnUnet
-        data = data[None, ...]  # [1,z,x,y], nnunet requires a channel dimension
+    data = data.transpose((2, 0, 1))  # z is in front for nnUnet
+    data = data[None, ...]  # [1,z,x,y], nnunet requires a channel dimension
     if mask is not None:
         mask = mask.transpose((2, 0, 1))
         mask = mask[None, ...]
@@ -114,12 +112,10 @@ def resample_img_nnunet(data, mask=None, original_spacing=1.0, target_spacing=2.
     # if anisotropy too big, then will resample z axis separately with order=0
     original_spacing = move_last_elem_to_front(original_spacing)
     target_spacing = move_last_elem_to_front(target_spacing)
-    data_res, mask_res = resample_patient(data, mask, original_spacing, target_spacing, 
-                                          force_separate_z=None, order_data=order_data, order_seg=order_seg)
+    data_res, mask_res = resample_patient(data, mask, original_spacing, target_spacing, force_separate_z=None)
 
-    if data is not None:
-        data_res = data_res[0,...] # remove channel dimension
-        data_res = data_res.transpose((1, 2, 0)) # Move z to back
+    data_res = data_res[0,...] # remove channel dimension
+    data_res = data_res.transpose((1, 2, 0)) # Move z to back
     if mask is not None:
         mask_res = mask_res[0,...]
         mask_res = mask_res.transpose((1, 2, 0))
@@ -171,6 +167,8 @@ def change_spacing(img_in, new_spacing=1.25, target_shape=None, order=0, nr_cpus
         # Find the right zoom to exactly reach the target_shape.
         # We also have to adapt the spacing to this new zoom.
         zoom = np.array(target_shape) / old_shape
+        if len(zoom) == 4:
+            zoom = zoom[:3]
         new_spacing = img_spacing / zoom
     else:
         zoom = img_spacing / new_spacing
@@ -200,8 +198,7 @@ def change_spacing(img_in, new_spacing=1.25, target_shape=None, order=0, nr_cpus
     # spacing = tuple(np.sqrt(np.sum(vecs ** 2, axis=0)))
 
     if nnunet_resample:
-        # new_data, _ = resample_img_nnunet(data, None, img_spacing, new_spacing, order_data=order, order_seg=order)
-        _, new_data = resample_img_nnunet(None, data, img_spacing, new_spacing, order_data=order, order_seg=order)
+        new_data, _ = resample_img_nnunet(data, None, img_spacing, new_spacing)
     else:
         if cupy_available and cucim_available:
             new_data = resample_img_cucim(data, zoom=zoom, order=order, nr_cpus=nr_cpus)  # gpu resampling

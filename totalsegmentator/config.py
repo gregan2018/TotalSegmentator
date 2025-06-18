@@ -5,8 +5,7 @@ import json
 import string
 import time
 from pathlib import Path
-import importlib.metadata
-import importlib.resources
+import pkg_resources
 import platform
 
 import requests
@@ -120,7 +119,6 @@ def is_valid_license(license_number):
         return False
 
 
-# currently not used anywhere
 def has_valid_license():
     totalseg_dir = get_totalseg_dir()
     totalseg_config_file = totalseg_dir / "config.json"
@@ -140,7 +138,7 @@ def has_valid_license():
         return "invalid_license", f"ERROR: Invalid license number ({license_number}). Please check your license number or contact support."
 
 
-# Used in python_api
+# Online check if license number is in config; do not do web request
 def has_valid_license_offline():
     totalseg_dir = get_totalseg_dir()
     totalseg_config_file = totalseg_dir / "config.json"
@@ -172,21 +170,10 @@ def increase_prediction_counter():
         return config
 
 
-def get_config():
-    totalseg_dir = get_totalseg_dir()
-    totalseg_config_file = totalseg_dir / "config.json"
-    if totalseg_config_file.exists():
-        with open(totalseg_config_file) as f:
-            config = json.load(f)
-        return config
-    else:
-        return None
-
-
 def get_version():
     try:
-        return importlib.metadata.version("TotalSegmentator")
-    except importlib.metadata.PackageNotFoundError:
+        return pkg_resources.get_distribution("TotalSegmentator").version
+    except pkg_resources.DistributionNotFound:
         return "unknown"
 
 
@@ -240,33 +227,6 @@ def send_usage_stats(config, params):
                                     "python_version": sys.version,
                                     "cuda_available": torch.cuda.is_available(),
                                     "license_number": license_number
-                                    }, timeout=5)
-            # if r.ok:
-            #     print(f"status: {r.json()['status']}")
-            # else:
-            #     print(f"status code: {r.status_code}")
-            #     print(f"message: {r.json()['message']}")
-            # print(f"Request took {time.time()-st:.3f}s")
-        except Exception as e:
-            # print(f"An Exception occurred: {e}")
-            pass
-
-
-def send_usage_stats_application(application_name):
-    config = get_config()
-    if config is not None and config["send_usage_stats"]:
-
-        try:
-            st = time.time()
-            url = "http://backend.totalsegmentator.com:80/"
-            r = requests.post(url + "log_totalseg_application_run",
-                              json={"totalseg_id": config["totalseg_id"],
-                                    "application": application_name,
-                                    "platform": platform.system(),
-                                    "machine": platform.machine(),
-                                    "version": get_version(),
-                                    "python_version": sys.version,
-                                    "cuda_available": torch.cuda.is_available()
                                     }, timeout=5)
             # if r.ok:
             #     print(f"status: {r.json()['status']}")

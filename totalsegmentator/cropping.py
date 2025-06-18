@@ -128,10 +128,19 @@ def undo_crop(img, ref_img, bbox):
     """
     Fit the image which was cropped by bbox back into the shape of ref_img.
     """
-    img_out = np.zeros(ref_img.shape)
-    img_out[bbox[0][0]:bbox[0][1], bbox[1][0]:bbox[1][1], bbox[2][0]:bbox[2][1]] = img.get_fdata()
+    if img.ndim == 3:
+        img_out = np.zeros(ref_img.shape, dtype=img.get_data_dtype())
+        img_out[bbox[0][0]:bbox[0][1], bbox[1][0]:bbox[1][1], bbox[2][0]:bbox[2][1]] = img.get_fdata()
+    elif img.ndim == 4:
+        img_out = np.zeros(ref_img.shape + (img.shape[3],), dtype=img.get_data_dtype())
+        img_out[bbox[0][0]:bbox[0][1], bbox[1][0]:bbox[1][1], bbox[2][0]:bbox[2][1], :] = img.get_fdata()
     return nib.Nifti1Image(img_out, ref_img.affine)
 
+def undo_crop_probabilities(prob, ref_img, bbox):
+    prob_out = np.zeros(ref_img.shape + (prob.shape[3],))
+    prob_out[bbox[0][0]:bbox[0][1], bbox[1][0]:bbox[1][1], bbox[2][0]:bbox[2][1], :] = prob.get_fdata()
+    prob.uncache()
+    return nib.Nifti1Image(prob_out, ref_img.affine)
 
 def undo_crop_nifti(img_path, ref_img_path, bbox, out_path):
     """

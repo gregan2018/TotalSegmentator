@@ -10,6 +10,7 @@ import pandas as pd
 import nibabel as nib
 from nibabel.nifti1 import Nifti1Image
 from tqdm import tqdm
+from p_tqdm import p_map
 import numpy.ma as ma
 
 from totalsegmentator.map_to_binary import class_map
@@ -57,7 +58,8 @@ def get_radiomics_features(seg_file, img_file="ct.nii.gz"):
 
 def get_radiomics_features_for_entire_dir(ct_file:Path, mask_dir:Path, file_out:Path):
     masks = sorted(list(mask_dir.glob("*.nii.gz")))
-    stats = [get_radiomics_features(ct_file, mask) for mask in masks]
+    stats = p_map(partial(get_radiomics_features, img_file=ct_file),
+                    masks, num_cpus=1, disable=False)
     stats = {mask_name: stats for mask_name, stats in stats}
     with open(file_out, "w") as f:
         json.dump(stats, f, indent=4)
@@ -97,8 +99,7 @@ def get_basic_statistics(seg: np.array,
                          task: str="total", 
                          exclude_masks_at_border: bool=True,
                          roi_subset: list=None,
-                         metric: str="mean",
-                         normalized_intensities: bool=False):
+                         metric: str="mean"):
     """
     ct_file: path to a ct_file or a nifti file object
     """
@@ -107,9 +108,6 @@ def get_basic_statistics(seg: np.array,
     spacing = ct_img.header.get_zooms()
     vox_vol = spacing[0] * spacing[1] * spacing[2]
     
-    if normalized_intensities:
-        ct = (ct - ct.min()) / (ct.max() - ct.min())
-
     class_map_stats = class_map[task]
     if roi_subset is not None:
         class_map_stats = {k: v for k, v in class_map_stats.items() if v in roi_subset}
@@ -129,9 +127,9 @@ def get_basic_statistics(seg: np.array,
             st = time.time()
             if metric == "mean":
                 # stats[mask_name]["intensity"] = ct[roi_mask > 0].mean().round(2) if roi_mask.sum() > 0 else 0.0  # 3.0s
-                stats[mask_name]["intensity"] = np.average(ct, weights=roi_mask).round(5) if roi_mask.sum() > 0 else 0.0  # 0.9s  # fast lowres mode: 0.03s
+                stats[mask_name]["intensity"] = np.average(ct, weights=roi_mask).round(2) if roi_mask.sum() > 0 else 0.0  # 0.9s  # fast lowres mode: 0.03s
             elif metric == "median":
-                stats[mask_name]["intensity"] = np.median(ct[roi_mask > 0]).round(5) if roi_mask.sum() > 0 else 0.0  # 0.9s  # fast lowres mode: 0.014s
+                stats[mask_name]["intensity"] = np.median(ct[roi_mask > 0]).round(2) if roi_mask.sum() > 0 else 0.0  # 0.9s  # fast lowres mode: 0.014s
             # print(f"took: {time.time()-st:.4f}s")
 
     if file_out is not None:

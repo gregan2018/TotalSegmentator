@@ -57,19 +57,13 @@ def save_multilabel_nifti(img, output_path, label_map, nora_project=None):
 
 def load_multilabel_nifti(img_path):
     """
-    img_path: path to the image or a nifti image object
+    img_path: path to the image
     returns:
         img: nifti image
         label_map: a dictionary with label ids and names
     """
     import xmltodict
-    
-    # Handle both file path and nifti image input
-    if isinstance(img_path, (str, Path)):
-        img = nib.load(img_path)
-    else:
-        img = img_path
-    
+    img = nib.load(img_path)
     ext_header = img.header.extensions[0].get_content()
     ext_header = xmltodict.parse(ext_header)
     ext_header = ext_header["CaretExtension"]["VolumeInformation"]["LabelTable"]["Label"]

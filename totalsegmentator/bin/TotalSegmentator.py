@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 import argparse
-import importlib.metadata
+from pkg_resources import require
 from pathlib import Path
 import re
 from totalsegmentator.python_api import totalsegmentator, validate_device_type_api
@@ -54,16 +54,13 @@ def main():
 
     # cerebral_bleed: Intracerebral hemorrhage
     # liver_vessels: hepatic vessels
-    parser.add_argument("-ta", "--task", choices=["total", "body", "body_mr", "vertebrae_mr",
+    parser.add_argument("-ta", "--task", choices=["total", "body",
                         "lung_vessels", "cerebral_bleed", "hip_implant", "coronary_arteries",
                         "pleural_pericard_effusion", "test",
-                        "appendicular_bones", "appendicular_bones_mr", "tissue_types", "heartchambers_highres",
-                        "face", "vertebrae_body", "total_mr", "tissue_types_mr", "tissue_4_types", "face_mr",
+                        "appendicular_bones", "tissue_types", "heartchambers_highres",
+                        "face", "vertebrae_body", "total_mr", "tissue_types_mr", "face_mr",
                         "head_glands_cavities", "head_muscles", "headneck_bones_vessels", "headneck_muscles",
-                        "brain_structures", "liver_vessels", "oculomotor_muscles",
-                        "thigh_shoulder_muscles", "thigh_shoulder_muscles_mr", "lung_nodules", "kidney_cysts", 
-                        "breasts", "ventricle_parts", "aortic_sinuses", "liver_segments", "liver_segments_mr",
-                        "total_highres_test", "craniofacial_structures", "abdominal_muscles"],
+                        "brain_structures", "liver_vessels", "oculomotor_muscles"],
                         help="Select which model to use. This determines what is predicted.",
                         default="total")
 
@@ -72,16 +69,8 @@ def main():
 
     # Will use 3mm model instead of 6mm model to crop to the rois specified in this argument.
     # 3mm is slower but more accurate.
-    # LEGACY: use --robust_crop now
     parser.add_argument("-rsr", "--roi_subset_robust", type=str, nargs="+",
                         help="Like roi_subset but uses a slower but more robust model to find the rois.")
-
-    parser.add_argument("-rc", "--robust_crop", action="store_true", help="For cropping (which is required for several task) or roi_subset, use the more robust 3mm model instead of the default and faster 6mm model.",
-                        default=False)
-
-    parser.add_argument("-ho", "--higher_order_resampling", action="store_true", 
-                        help="Use higher order resampling for segmentations. Results in smoother segmentations on high resolution images but uses more runtime + memory.",
-                        default=False)
 
     parser.add_argument("-s", "--statistics", action="store_true",
                         help="Calc volume (in mm3) and mean intensity. Results will be in statistics.json",
@@ -130,9 +119,6 @@ def main():
     parser.add_argument("-q", "--quiet", action="store_true", help="Print no intermediate outputs",
                         default=False)
 
-    parser.add_argument("-sp", "--save_probabilities", help="Save probabilities to this path. Only for experienced users. Python skills required.",
-                        type=lambda p: Path(p).absolute())
-
     parser.add_argument("-v", "--verbose", action="store_true", help="Show more intermediate output",
                         default=False)
 
@@ -148,7 +134,7 @@ def main():
                         help="Only needed for unittesting.",
                         default=0)
 
-    parser.add_argument('--version', action='version', version=importlib.metadata.version("TotalSegmentator"))
+    parser.add_argument('--version', action='version', version=require("TotalSegmentator")[0].version)
 
     args = parser.parse_args()
 
@@ -158,8 +144,7 @@ def main():
                      args.force_split, args.output_type, args.quiet, args.verbose, args.test, args.skip_saving,
                      args.device, args.license_number, not args.stats_include_incomplete,
                      args.no_derived_masks, args.v1_order, args.fastest, args.roi_subset_robust,
-                     "mean", args.remove_small_blobs, False, args.robust_crop, args.higher_order_resampling,
-                     args.save_probabilities)
+                     "mean", args.remove_small_blobs)
 
 
 if __name__ == "__main__":

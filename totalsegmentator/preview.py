@@ -62,10 +62,14 @@ roi_groups = {
         ["humerus_left", "humerus_right", "femur_left", "femur_right", 
         "hip_left", "hip_right", "sacrum",
         "vertebrae", "intervertebral_discs",
+        "fibula", "tibia",
         "autochthon_left", "autochthon_right", "iliopsoas_left", "iliopsoas_right",
         "gluteus_medius_left", "gluteus_medius_right", "gluteus_minimus_left", "gluteus_minimus_right",
-        "gluteus_maximus_left", "gluteus_maximus_right", 
-        "scapula_left", "scapula_right", "clavicula_left", "clavicula_right"],
+        "gluteus_maximus_left", "gluteus_maximus_right",
+        "quadriceps_femoris_left", "quadriceps_femoris_right", 
+        "thigh_medial_compartment_left", "thigh_medial_compartment_right", 
+        "thigh_posterior_compartment_left", "thigh_posterior_compartment_right", 
+        "sartorius_left", "sartorius_right"],
         ["iliac_artery_left", "iliac_artery_right", "iliac_vena_left", "iliac_vena_right",
         "aorta", "inferior_vena_cava", "portal_vein_and_splenic_vein",
         "heart", "esophagus", "stomach", "duodenum", "colon", "small_bowel", "urinary_bladder"],
@@ -94,14 +98,6 @@ roi_groups = {
     "body": [
         ["body_trunc", "body_extremities"]
     ],
-    "body_mr": [
-        ["body_trunc", "body_extremities"]
-    ],
-    "vertebrae_mr": [
-        ["sacrum", "vertebrae_L5", "vertebrae_L4", "vertebrae_L3", "vertebrae_L2", "vertebrae_L1", "vertebrae_T12", "vertebrae_T11", "vertebrae_T10", 
-         "vertebrae_T9", "vertebrae_T8", "vertebrae_T7", "vertebrae_T6", "vertebrae_T5", "vertebrae_T4", "vertebrae_T3", "vertebrae_T2", "vertebrae_T1", 
-         "vertebrae_C7", "vertebrae_C6", "vertebrae_C5", "vertebrae_C4", "vertebrae_C3", "vertebrae_C2", "vertebrae_C1"]
-    ],
     "pleural_pericard_effusion": [
         ["pleural_effusion", "pericardial_effusion"]
     ],
@@ -109,7 +105,7 @@ roi_groups = {
         ["liver_vessels", "liver_tumor"]
     ],
     "vertebrae_body": [
-        ["vertebrae_body", "intervertebral_discs"]
+        ["vertebrae_body"]
     ],
     "heartchambers_highres": [
         ["heart_myocardium"],
@@ -121,10 +117,6 @@ roi_groups = {
         ["patella", "tibia", "fibula", "tarsal", "metatarsal", "phalanges_feet",
          "ulna", "radius", "carpal", "metacarpal", "phalanges_hand"]
     ],
-    "appendicular_bones_mr": [
-        ["patella", "tibia", "fibula", "tarsal", "metatarsal", "phalanges_feet",
-         "ulna", "radius"]
-    ],
     "tissue_types": [
         ["subcutaneous_fat"],
         ["torso_fat"],
@@ -134,12 +126,6 @@ roi_groups = {
         ["subcutaneous_fat"],
         ["torso_fat"],
         ["skeletal_muscle"]
-    ],
-    "tissue_4_types": [
-        ["subcutaneous_fat"],
-        ["torso_fat"],
-        ["skeletal_muscle"],
-        ["intermuscular_fat"]
     ],
     "face": [
         ["face"]
@@ -194,60 +180,6 @@ roi_groups = {
         "inferior_rectus_muscle_right", "inferior_rectus_muscle_left", 
         "optic_nerve_right", "optic_nerve_left"]
     ],
-    "thigh_shoulder_muscles": [
-        ["quadriceps_femoris_left", "quadriceps_femoris_right", 
-        "thigh_medial_compartment_left", "thigh_medial_compartment_right",
-        "deltoid", "supraspinatus", "infraspinatus", "subscapularis", "coracobrachial", "trapezius"], 
-        ["thigh_posterior_compartment_left", "thigh_posterior_compartment_right", 
-        "sartorius_left", "sartorius_right",
-        "pectoralis_minor", "serratus_anterior", "teres_major", "triceps_brachii"]
-    ],
-    "thigh_shoulder_muscles_mr": [
-        ["quadriceps_femoris_left", "quadriceps_femoris_right", 
-        "thigh_medial_compartment_left", "thigh_medial_compartment_right",
-        "deltoid", "supraspinatus", "infraspinatus", "subscapularis", "coracobrachial", "trapezius"], 
-        ["thigh_posterior_compartment_left", "thigh_posterior_compartment_right", 
-        "sartorius_left", "sartorius_right",
-        "pectoralis_minor", "serratus_anterior", "teres_major", "triceps_brachii"]
-    ],
-    "lung_nodules": [
-        ["lung_nodules"]
-    ],
-    "kidney_cysts": [
-        ["kidney_cyst_left", "kidney_cyst_right"]
-    ],
-    "breasts": [
-        ["breast"]
-    ],
-    "ventricle_parts": [
-        ["ventricle_frontal_horn_left", "ventricle_occipital_horn_left", "ventricle_body_left",
-        "ventricle_temporal_horn_left", "ventricle_trigone_left", "ventricle_frontal_horn_right",
-        "ventricle_occipital_horn_right", "ventricle_body_right", "ventricle_temporal_horn_right",
-        "ventricle_trigone_right", "third_ventricle", "fourth_ventricle"]
-    ],
-    "aortic_sinuses": [
-        ["left_ventricular_outflow_tract", "right_coronary_cusp", "left_coronary_cusp", "non_coronary_cusp"]
-    ],
-    "liver_segments": [
-        ["liver_segment_1", "liver_segment_2", "liver_segment_3", "liver_segment_4", "liver_segment_5", "liver_segment_6", "liver_segment_7", "liver_segment_8"]
-    ],
-    "liver_segments_mr": [
-        ["liver_segment_1", "liver_segment_2", "liver_segment_3", "liver_segment_4", "liver_segment_5", "liver_segment_6", "liver_segment_7", "liver_segment_8"]
-    ],
-    "craniofacial_structures": [
-        ["head"],
-        ["skull"],
-        ["mandible", "teeth_lower", "sinus_maxillary", "sinus_frontal", "teeth_upper"],  
-    ],
-    "abdominal_muscles": [
-        ["pectoralis_major_right", "pectoralis_major_left", "rectus_abdominis_right", 
-         "rectus_abdominis_left", "serratus_anterior_right", "serratus_anterior_left"], 
-        ["latissimus_dorsi_right", "latissimus_dorsi_left", 
-         "trapezius_right", "trapezius_left", "external_oblique_right", "external_oblique_left"], 
-        ["internal_oblique_right", "internal_oblique_left", "erector_spinae_right", "erector_spinae_left", 
-         "transversospinalis_right", "transversospinalis_left", "psoas_major_right", "psoas_major_left", 
-         "quadratus_lumborum_right", "quadratus_lumborum_left"]
-    ],
     "test": [
         ["ulna"]
     ]
@@ -267,21 +199,14 @@ def plot_roi_group(ref_img, scene, rois, x, y, smoothing, roi_data, affine, task
             scene.add(cont_actor)
 
 
-# Images are passed here before being resampled back to original space. Therefore
-# most of the image they are rather isotropic when being passed here. So we skip
-# doing a resampling here.
 def plot_subject(ct_img, output_path, df=None, roi_data=None, smoothing=20,
                  task_name="total"):
+    subject_width = 330
+    # subject_height = 700
+    nr_cols = 10
 
-    nr_cols = len(roi_groups[task_name]) + 1
-
-    ct_img_shape = ct_img.shape
-    ct_img_zooms = ct_img.header.get_zooms()
-
-    subject_width = int(ct_img_shape[0] * ct_img_zooms[0] * 0.9)
-    subject_height = int(ct_img_shape[2] * ct_img_zooms[2] * 0.9)
-
-    window_size = (subject_width * nr_cols, subject_height)
+    window_size = (1800, 400)
+    # window_size = (1800, 1200)  # if we need higher res image of single class
 
     scene = window.Scene()
     showm = window.ShowManager(scene=scene, size=window_size, reset_camera=False)
@@ -316,11 +241,10 @@ def plot_subject(ct_img, output_path, df=None, roi_data=None, smoothing=20,
 
     scene.projection(proj_type="parallel")
     scene.reset_camera_tight(margin_factor=1.02)  # need to do reset_camera=False in record for this to work in
-    reset_camera = False
 
     output_path.parent.mkdir(parents=True, exist_ok=True)
     window.record(scene=scene, size=window_size,
-                  out_path=output_path, reset_camera=reset_camera)
+                  out_path=output_path, reset_camera=False)  # , reset_camera=False
     scene.clear()
 
 

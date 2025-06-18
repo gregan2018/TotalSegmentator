@@ -6,14 +6,13 @@ import argparse
 import json
 import pickle
 from pprint import pprint
-import importlib.resources
-import importlib.metadata
+import pkg_resources
 
 import nibabel as nib
 import numpy as np
 
 from totalsegmentator.python_api import totalsegmentator
-from totalsegmentator.config import send_usage_stats_application
+
 
 """
 Additional requirements for this script:
@@ -55,8 +54,7 @@ def pi_time_to_phase(pi_time: float) -> str:
         # return "delayed", 0.7  # not enough good training data for this
 
 
-def get_ct_contrast_phase(ct_img: nib.Nifti1Image, model_file: Path = None, 
-                          quiet: bool = False, device: str = "gpu"):
+def get_ct_contrast_phase(ct_img: nib.Nifti1Image, model_file: Path = None):
 
     organs = ["liver", "pancreas", "urinary_bladder", "gallbladder",
               "heart", "aorta", "inferior_vena_cava", "portal_vein_and_splenic_vein",
@@ -67,29 +65,22 @@ def get_ct_contrast_phase(ct_img: nib.Nifti1Image, model_file: Path = None,
                  "internal_jugular_vein_right", "internal_jugular_vein_left"]
 
     st = time.time()
-    if not quiet:
-        print("Running TotalSegmentator...")
     seg_img, stats = totalsegmentator(ct_img, None, ml=True, fast=True, statistics=True, 
                                       roi_subset=None, statistics_exclude_masks_at_border=False,
-                                      quiet=True, stats_aggregation="median", device=device)
-    if not quiet:
-        print(f"  took: {time.time()-st:.2f}s")
+                                      quiet=True, stats_aggregation="median")
+    # print(f"ts took: {time.time()-st:.2f}s")
     
     if stats["brain"]["volume"] > 100:
-        if not quiet:
-            print("Running headneck model...")
+        # print("Brain in image, therefore also running headneck model.")
         st = time.time()
         seg_img_hn, stats_hn = totalsegmentator(ct_img, None, ml=True, fast=False, statistics=True, 
                                                 task="headneck_bones_vessels",
                                                 roi_subset=None, statistics_exclude_masks_at_border=False,
                                                 quiet=True, stats_aggregation="median")
-        if not quiet:
-            print(f"  took: {time.time()-st:.2f}s")
+        # print(f"hn took: {time.time()-st:.2f}s")
     else:
         stats_hn = {organ: {"intensity": 0.0} for organ in organs_hn}
 
-    if not quiet:
-        print("Predicting phase...")
     features = []
     for organ in organs:
         features.append(stats[organ]["intensity"])
@@ -98,7 +89,7 @@ def get_ct_contrast_phase(ct_img: nib.Nifti1Image, model_file: Path = None,
 
     if model_file is None:
         # classifier_path = Path(__file__).parents[2] / "resources" / "contrast_phase_classifiers_2024_07_19.pkl"
-        classifier_path = str(importlib.resources.files('totalsegmentator') / 'resources/contrast_phase_classifiers_2024_07_19.pkl')
+        classifier_path = pkg_resources.resource_filename('totalsegmentator', 'resources/contrast_phase_classifiers_2024_07_19.pkl')
     else: 
         # manually set model file
         classifier_path = model_file
@@ -147,16 +138,13 @@ def main():
     parser.add_argument("-m", metavar="filepath", dest="model_file",
                         help="path to classifier model",
                         type=lambda p: Path(p).absolute(), required=False, default=None)
-
-    parser.add_argument("-d",'--device', type=str, default="gpu",
-                        help="Device type: 'gpu', 'cpu', 'mps', or 'gpu:X' where X is an integer representing the GPU device ID.")
     
     parser.add_argument("-q", dest="quiet", action="store_true",
                         help="Print no output to stdout", default=False)
 
     args = parser.parse_args()
 
-    res = get_ct_contrast_phase(nib.load(args.input_file), args.model_file, args.quiet, args.device)
+    res = get_ct_contrast_phase(nib.load(args.input_file), args.model_file)
 
     if not args.quiet:
         print("Result:")
@@ -164,8 +152,6 @@ def main():
 
     with open(args.output_file, "w") as f:
         f.write(json.dumps(res, indent=4))
-
-    send_usage_stats_application("get_phase")
 
 
 if __name__ == "__main__":
